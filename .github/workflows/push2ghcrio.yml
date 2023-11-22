@@ -26,7 +26,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: new image name
         run: |
-          echo "new_image_name=$(echo ${{ matrix.image }}) | sed 's/\//-/' | sed 's/:/-/' >> $GITHUB_ENV
+          echo "new_image_name=$(echo ${{ matrix.image }} | sed 's/\//-/' | sed 's/:/-/') >> $GITHUB_ENV
         shell: bash
       - name: docker tag 
         run: |
