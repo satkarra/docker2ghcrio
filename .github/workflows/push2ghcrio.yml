@@ -30,7 +30,7 @@ jobs:
         shell: bash
       - name: docker tag 
         run: |
-          echo "tag=ghcr.io/${{ github.actor }}/docker2ghcrio-${{ env.new_image_name }}" >> $GITHUB_ENV
+          echo "tag=ghcr.io/${{ github.actor }}/docker2ghcrio/${{ env.new_image_name }}" >> $GITHUB_ENV
         shell: bash
       - name: echo docker tag to env
         id: env_tag
