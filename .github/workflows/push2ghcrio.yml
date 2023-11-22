@@ -47,8 +47,9 @@ jobs:
         run: |
             docker pull ${{ matrix.image }}
             docker save -o myimagetar  ${{ matrix.image }}
+            docker tag  ${{ matrix.image }} ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
             docker images
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker push ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
       - name: pull image from ghcr.io and test it
         run: |
