@@ -1,4 +1,4 @@
-name: push2ghcri
+name: push2ghcrio
 
 on:
   repository_dispatch:
@@ -46,11 +46,12 @@ jobs:
       - name: pull image from docker hub and push it to ghcr.io
         run: |
             docker pull ${{ matrix.image }}
-            docker save -o ${{ matrix.image }}.tar  ${{ matrix.image }}
+            docker save -o myimagetar  ${{ matrix.image }}
+            docker images
             echo ${{ secrets.GITHUB_TOKEN }} | docker login -u ${{ github.actor }} --password-stdin
-            docker push ghcr.io/${{ github.repository_owner }}/${{ env.tag }}:latest
+            docker push ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
       - name: pull image from ghcr.io and test it
         run: |
-            docker pull ghcr.io/${{ github.repository_owner }}/${{ env.tag }}:latest
-            docker run --rm  ghcr.io/${{ github.repository_owner }}/${{ env.tag }}:latest ls -lrt /
+            docker pull ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
+            docker run --rm  ghcr.io/${{ github.repository_owner }}/${{ matrix.image }} ls -lrt /
         
