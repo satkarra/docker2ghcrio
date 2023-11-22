@@ -16,9 +16,6 @@ jobs:
             - microbiomedata/spades:3.15.0
     runs-on: ubuntu-latest
     timeout-minutes: 420
-    outputs:
-      tag: ${{ steps.env_tag.outputs.tag }}
-      tag_noarch: ${{ steps.env_tag_noarch.outputs.tag_noarch }}
     steps:
       - name: Login to GitHub Container Registry
         if: ${{ github.actor == github.repository_owner }}
@@ -27,9 +24,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: new image name
+        run: |
+          echo "new_image_name=$(echo ${{ matrix.image }}) | sed 's/\//-/' | sed 's/:/-/' >> $GITHUB_ENV
+        shell: bash
       - name: docker tag 
         run: |
-          echo "tag=ghcr.io/${{ github.actor }}/docker2ghcrio-${{ matrix.image }}" >> $GITHUB_ENV
+          echo "tag=ghcr.io/${{ github.actor }}/docker2ghcrio-${{ env.new_image_name }}" >> $GITHUB_ENV
         shell: bash
       - name: echo docker tag to env
         id: env_tag
@@ -47,12 +48,12 @@ jobs:
         run: |
             docker pull ${{ matrix.image }}
             docker save -o myimagetar  ${{ matrix.image }}
-            docker tag  ${{ matrix.image }} ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
+            docker tag  ${{ matrix.image }} ${{ env.tag }}
             docker images
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker push ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
+            docker push ${{ env.tag }}
       - name: pull image from ghcr.io and test it
         run: |
-            docker pull ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}
-            docker run --rm  ghcr.io/${{ github.repository_owner }}/${{ matrix.image }} ls -lrt /
+            docker pull ${{ env.tag }}
+            docker run --rm  ${{ env.tag }} ls -lrt /
         
